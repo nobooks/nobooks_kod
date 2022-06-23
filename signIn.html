@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <script src="/socket.io/socket.io.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300i,400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <title>NoBooks</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            font-family: "Nunito Sans";
+        }
+
+        #messageArea {
+            display: none;
+        }
+
+        .form-control {
+            line-height: 2;
+        }
+
+        .bg-custom {
+            background-color: #56385a;
+        }
+
+        .btn-custom {
+            background-color: #78fcf6;
+            color: #fff;
+        }
+
+        .btn-custom:hover {
+            background-color: #78fcf6;
+            color: #fff;
+        }
+
+        label {
+            color: #fff;
+        }
+
+        a,
+        a:hover {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        a,
+        a:hover {
+            text-decoration: none;
+        }
+
+        .signIn {
+            margin-top: 10vh;
+            position: relative;
+            margin-right: auto;
+            margin-left: auto;
+            height: 200vh;
+            width: 55%;
+            background-color: #492f4d;
+            opacity: 0.9;
+            border-radius: 15px;
+            zoom: 110%;
+
+        }
+
+        @media(max-width: 932px) {
+            .display-none {
+                display: none !important;
+            }
+        }
+    </style>
+
+    <style type="text/css">
+        *,
+        *:before,
+        *:after {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --white: #fff;
+            --black: #000;
+            --bg: #000000;
+            --grey: rgb(255, 255, 255);
+            --dark: #1a1a1a;
+            --light: #e3dee3;
+            --wrapper: 1000px;
+            --blue: #e3dee3;
+        }
+
+        body {
+            background-image: "a.png";
+            background-color: #e3dee3;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            font-family: "Source Sans Pro", sans-serif;
+            font-weight: 400;
+
+            background-size: cover;
+            background-repeat: none;
+        }
+
+        .wrapper {
+            position: relative;
+            left: 45%;
+            width: var(--wrapper);
+            height: 800px;
+            transform: translate(-50%, 0);
+            border-radius: 5em;
+        }
+
+        .container {
+            position: relative;
+            top: 50%;
+            left: 50%;
+            width: 80%;
+            height: 70%;
+            background-color: #e3dee3;
+            transform: translate(-50%, -50%);
+            border-radius: 10em;
+
+        }
+
+        .container .left {
+            float: left;
+            width: 37.6%;
+            height: 100%;
+            border: 1px solid var(--light);
+            background-color: var(--white);
+            border-top-left-radius: 3.5em;
+            border-bottom-left-radius: 3.5em;
+        }
+
+        .container .left .top {
+            position: relative;
+            width: 100%;
+            height: 96px;
+            padding: 29px;
+            border-top-left-radius: 5em;
+
+        }
+
+        .container .left .top:after {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            display: block;
+            width: 80%;
+            height: 1px;
+            content: "";
+            background-color: var(--light);
+            transform: translate(-50%, 0);
+        }
+
+        .container .left input {
+            float: left;
+            width: 188px;
+            height: 42px;
+            padding: 0 15px;
+            border: 1px solid var(--light);
+            background-color: #eceff1;
+            border-radius: 21px;
+            font-family: "Source Sans Pro", sans-serif;
+            font-weight: 400;
+        }
+
+        .container .left input:focus {
+            outline: none;
+        }
+
+        .container .left a.search {
+            display: block;
+            float: left;
+            width: 42px;
+            height: 42px;
+            margin-left: 10px;
+            border: 1px solid var(--light);
+            background-color: var(--blue);
+            /* background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/382994/name-type.png"); */
+            background-repeat: no-repeat;
+            background-position: top 12px left 14px;
+            border-radius: 50%;
+        }
+
+
+        .container .right {
+            position: relative;
+            float: left;
+            width: 62.4%;
+            height: 100%;
+            border-top-right-radius: 3.5em;
+            border-bottom-right-radius: 3.5em;
+
+        }
+
+        .container .right .top {
+            width: 100%;
+            height: 50px;
+            padding: 5px 29px;
+            background-color: #eceff1;
+            border-top-right-radius: 5em;
+        }
+
+        .container .right .top span {
+            font-size: 15px;
+            color: var(--grey);
+        }
+
+        .container .right .top span .name {
+            color: var(--dark);
+            font-family: "Source Sans Pro", sans-serif;
+            font-weight: 600;
+            padding: auto;
+        }
+
+        .container .right .chat {
+            position: relative;
+            display: none;
+            overflow: hidden;
+            padding: 0 35px 92px;
+            border-width: 1px 1px 1px 0;
+            border-style: solid;
+            border-color: var(--light);
+            height: calc(100% - 48px);
+            justify-content: flex-end;
+            flex-direction: column;
+        }
+
+        .container .right .write {
+
+            position: absolute;
+            bottom: 29px;
+            left: 390px;
+            height: 42px;
+            padding-left: 8px;
+            border: 1px solid var(--light);
+            background-color: #eceff1;
+            width: calc(100% - 420px);
+            border-radius: 10pt;
+        }
+
+        .container .right .writetext {
+
+            position: absolute;
+            bottom: 29px;
+            left: 15px;
+            height: 42px;
+            padding-left: 8px;
+            border: 1px solid var(--light);
+            background-color: #c3d0da;
+            width: calc(100% - 86px);
+            border-radius: 10pt;
+        }
+
+        .container .right .write input {
+
+            font-size: 16px;
+            float: left;
+            width: 347px;
+            height: 40px;
+            padding: 0 10px;
+            color: var(--dark);
+            border: 0;
+            outline: none;
+            background-color: #eceff1;
+            font-family: "Source Sans Pro", sans-serif;
+            font-weight: 400;
+        }
+
+        .container .left .people {
+            margin-left: -1px;
+            border-right: 1px solid var(--light);
+            border-left: 1px solid var(--light);
+            width: calc(100% + 2px);
+        }
+
+        .container .left .people .person {
+            position: relative;
+            width: 80%;
+            padding: 12px 10% 22px;
+            cursor: pointer;
+            background-color: var(--white);
+        }
+
+        .container .left .people .person:after {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            display: block;
+            width: 80%;
+            height: 1px;
+            content: "";
+            background-color: var(--light);
+            transform: translate(-50%, 0);
+        }
+
+        .container .left .people .person img {
+            float: left;
+            width: 40px;
+            height: 40px;
+            margin-right: 12px;
+            border-radius: 50%;
+            -o-object-fit: cover;
+            object-fit: cover;
+        }
+
+        .container .right .top .name img {
+            float: left;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+            -o-object-fit: cover;
+            object-fit: cover;
+        }
+
+        .container .right .bubble {
+            font-size: 16px;
+            position: relative;
+            display: inline-block;
+            clear: both;
+            margin-bottom: 8px;
+            padding: 13px 14px;
+            vertical-align: top;
+            border-radius: 5px;
+        }
+
+        .container .right .bubble:before {
+            position: absolute;
+            top: 19px;
+            display: block;
+            width: 8px;
+            height: 6px;
+            content: " ";
+            transform: rotate(29deg) skew(-35deg);
+        }
+
+        .container .right .bubble.you {
+            float: left;
+            color: var(--black);
+            background-color: var(--blue);
+            align-self: flex-start;
+            border-radius: 10pc;
+            background-color: #e3dee3;
+            -webkit-animation-name: slideFromLeft;
+            animation-name: slideFromLeft;
+
+        }
+
+        .container .right .bubble.you:before {
+            left: -3px;
+            background-color: var(--blue);
+        }
+
+        .container .right .bubble.me {
+            border-radius: 10pc;
+            float: right;
+            color: var(--dark);
+            background-color: #ffffff;
+            align-self: flex-end;
+            -webkit-animation-name: slideFromRight;
+            animation-name: slideFromRight;
+        }
+
+        .container .right .bubble.me:before {
+            right: -3px;
+            background-color: #ffffff;
+        }
+
+        .container .right .conversation-start {
+            position: absolute;
+            bottom: 29px;
+            left: 30px;
+            height: 42px;
+            padding-left: 8px;
+            border: 1px solid var(--light);
+            background-color: #eceff1;
+            width: calc(100% - 58px);
+            border-radius: 10pt;
+
+            /* position: relative;
+            width: 100%; */
+            margin-bottom: 27px;
+            text-align: center;
+        }
+
+        .container .right .conversation-start span {
+            font-size: 14px;
+            display: inline-block;
+            color: var(--grey);
+        }
+
+        .container .right .conversation-start span:before,
+        .container .right .conversation-start span:after {
+            position: absolute;
+            top: 10px;
+            display: inline-block;
+            width: 30%;
+            height: 1px;
+            content: "";
+            background-color: var(--light);
+        }
+
+        .container .right .conversation-start span:before {
+            left: 0;
+        }
+
+        .container .right .conversation-start span:after {
+            right: 0;
+        }
+
+        @keyframes slideFromLeft {
+            0% {
+                margin-left: -200px;
+                opacity: 0;
+            }
+
+            100% {
+                margin-left: 0;
+                opacity: 1;
+            }
+        }
+
+        @-webkit-keyframes slideFromLeft {
+            0% {
+                margin-left: -200px;
+                opacity: 0;
+            }
+
+            100% {
+                margin-left: 0;
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideFromRight {
+            0% {
+                margin-right: -200px;
+                opacity: 0;
+            }
+
+            100% {
+                margin-right: 0;
+                opacity: 1;
+            }
+        }
+
+        @-webkit-keyframes slideFromRight {
+            0% {
+                margin-right: -200px;
+                opacity: 0;
+            }
+
+            100% {
+                margin-right: 0;
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body class="body">
+
+    <div>
+        <div class="col p-0 bg-custom d-flex justify-content-center align-items-center flex-column w-100">
+            <div class="signIn" id="yeni">
+
+                <form style="margin-left: auto; margin-right: auto; margin-top:25px;" class="w-75" action="#"
+                    id="create_room">
+                    <center style="color:white">
+                        <h3>Create Room</h3>
+                    </center>
+
+
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" type="text" type="color" vale="#4a304d"
+                            placeholder="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput2" class="form-label">Password</label>
+                        <input type="text" class="form-control" id="password" type="" placeholder="password" required>
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">Room Name</label>
+                        <input type="text" class="form-control" id="room_name" type="text" type="color" vale="#4a304d"
+                            placeholder="Enter room name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput2" class="form-label">Room Password</label>
+                        <input type="text" class="form-control" id="room_pass" type="" placeholder="Enter room password"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                    </div>
+                    <div class="row">
+
+                    </div>
+                    <input type="submit" class="btn btn-primary" value="Create" />
+
+                </form>
+                <br><br><br><br>
+
+
+            </div>
+        </div>
+
+        <div class="wrapper" style="color:#4a4645">
+            <div id="messageArea" class="container ">
+                <div class="left " style="background-color:#a997ab ;">
+                    <div class="top" style="background-color:#a997ab ; font-size:25px;">
+
+                        <center>
+                            <front style="font-size: 25px ; background-color:#a997ab ;">Online Users</front>
+                        </center>
+
+                    </div>
+                    <div style="background-color:#a997ab ;">
+                        <ul class="people" id="users" style="background-color:#a997ab ;"></ul>
+                    </div>
+                </div>
+                <div class="right " style="background-color:#675267 ;">
+
+                    <div style="background-color:#a997ab ; font-size:25px;" class="top">
+                        <span><span class="name"  id = "roomname" style="font-size:20px;">NoBooks</span></span>
+                    </div>
+                    <form id="messageForm">
+                        <div class="form-group">
+
+                            <div id="chat"></div>
+                            <textarea class="form-control writetext" id="message"></textarea> <br />
+                            <input type="submit" class="btn btn-primary write "
+                                style="background-color:#ae9faf ; color: #492f4d;" value="Send" />
+
+                        </div>
+                    </form>
+
+
+                </div>
+                <ATP />
+            </div>
+        </div>
+
+
+        <script>
+            $(function () {
+                var socket = io.connect();
+                var $create_room = $('#create_room');
+                var $username = $('#username');
+                var $password = $('#password');
+                var $room_name = $('#room_name');
+                var $room_pass = $('#room_pass');
+
+                var $messageForm = $('#messageForm');
+                var $message = $('#message');
+                var $chat = $('#chat');
+                var $messageArea = $('#messageArea');
+                var $users = $('#users');
+                var $yeni = $('#yeni');
+                var $right = $('#right');
+                var $room = $('#room');
+                
+
+                $create_room.submit(function (e) {
+                    e.preventDefault();
+                    console.log("create içi");
+                    const control = socket.emit('join room', $username.val(), $password.val(), $room_name.val(), $room_pass.val(), function (data) {
+                        if (data && control) {
+                            //document.getElementById("room_name").value = $room_name;
+                            $messageArea.show();
+                     
+                            $yeni.hide();
+                            console.log('room name');
+                            $("#top").append("<span><span class='name' style='font-size:20px;''>" + $room_name + "</span></span>");
+                            
+                        }
+                   
+                    });
+                    if (control) {
+                        console.log("index2 tamam");
+                        $messageArea.show();
+                        $yeni.hide();
+                    }
+                    $username.val('');
+                    $password.val('');
+                    $room_name.val('');
+                    $room_pass.val('');
+                })
+
+
+
+                $messageForm.submit(function (e) {
+                    e.preventDefault();
+                    socket.emit('send message', $message.val());
+                    $message.val('');
+                    console.log("server a gidiyor")
+
+                });
+
+                socket.on('new message', function (data) {
+                    $("#chat").append("</br> <p align='right' class='bubble you'>" + data.user + "</b> :" + data.msg + "</b> </p>");
+                });
+                socket.on('room name', function (data) {
+                
+                $("#room_name").append("</br> <p align='top' style='color:yellow'>" + data.room_name + "</b> </p>");
+            });
+
+                socket.on('get users', function (data) {
+                    var html = '';
+                    for (i = 0; i < data.length; i++) {
+                        html += '<li class="person" style="background-color:#a997ab;">' + data[i] + '</li>'
+                    }
+                    $users.html(html);
+                })
+            });
+        </script>
+
+
+</body>
+
+
+
+
+</html>
